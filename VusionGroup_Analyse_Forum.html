@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vusion — Analyse Résultats 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00c896;
+    --accent2: #3b82f6;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --heading: #f8fafc;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 32px 20px 60px;
+  }
+  .container { max-width: 860px; margin: 0 auto; }
+
+  /* HEADER */
+  .header {
+    border-left: 4px solid var(--accent);
+    padding: 20px 24px;
+    background: var(--surface);
+    border-radius: 0 12px 12px 0;
+    margin-bottom: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: 'VU';
+    position: absolute; right: 24px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 72px; font-weight: 800;
+    color: rgba(0,200,150,0.06);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .ticker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 22px; font-weight: 800;
+    color: var(--heading); line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  .disclaimer {
+    font-size: 12px; color: var(--muted);
+    font-style: italic;
+  }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    position: relative;
+  }
+  .kpi-label {
+    font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 600;
+    color: var(--heading);
+    margin-bottom: 4px;
+  }
+  .kpi-delta {
+    font-size: 13px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .kpi-delta.up { color: var(--accent); }
+  .kpi-delta.warn { color: var(--warn); }
+  .kpi-delta.neutral { color: var(--muted); }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* BLOCKS */
+  .block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .block h3 {
+    font-size: 15px; font-weight: 700;
+    color: var(--heading); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .block h3 .icon {
+    width: 28px; height: 28px;
+    background: rgba(0,200,150,0.12);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .block p { margin-bottom: 10px; color: #b0bfd4; }
+  .block p:last-child { margin-bottom: 0; }
+  .block strong { color: var(--heading); font-weight: 600; }
+
+  /* HIGHLIGHT INLINE */
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-blue { color: var(--accent2); font-weight: 600; }
+  .hl-warn { color: var(--warn); font-weight: 600; }
+  .hl-red { color: var(--danger); font-weight: 600; }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    padding: 2px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .tag-green { background: rgba(0,200,150,0.15); color: var(--accent); }
+  .tag-blue { background: rgba(59,130,246,0.15); color: var(--accent2); }
+  .tag-warn { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .tag-red { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+  /* TABLE */
+  .data-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13.5px; margin: 12px 0;
+  }
+  .data-table th {
+    text-align: left; padding: 8px 12px;
+    background: var(--surface2);
+    color: var(--muted); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1px;
+    font-weight: 600;
+  }
+  .data-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    color: #b0bfd4;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child { color: var(--heading); font-weight: 600; }
+  .data-table td.right { text-align: right; font-family: 'JetBrains Mono', monospace; }
+  .data-table td.green { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+  .data-table td.warn { color: var(--warn); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+
+  /* LIST */
+  .check-list { list-style: none; padding: 0; }
+  .check-list li {
+    padding: 5px 0 5px 22px;
+    position: relative; color: #b0bfd4;
+    font-size: 14px;
+  }
+  .check-list li::before {
+    content: '→';
+    position: absolute; left: 0;
+    color: var(--accent); font-weight: 700;
+  }
+  .check-list li.risk::before { color: var(--danger); content: '⚠'; font-size: 12px; top: 6px; }
+  .check-list li.neutral::before { color: var(--warn); content: '◈'; font-size: 10px; top: 7px; }
+
+  /* FIBO TABLE */
+  .fibo-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .fibo-row:last-child { border-bottom: none; }
+  .fibo-level {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--muted); width: 50px;
+  }
+  .fibo-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px; font-weight: 600;
+    color: var(--heading); width: 70px;
+  }
+  .fibo-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .fibo-bar-fill { height: 100%; border-radius: 2px; }
+  .fibo-tag { font-size: 11px; width: 90px; text-align: right; }
+
+  /* PERSPECTIVES GRID */
+  .persp-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 16px;
+  }
+  @media (max-width: 620px) { .persp-grid { grid-template-columns: 1fr; } }
+  .persp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px;
+  }
+  .persp-card .horizon {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .persp-card h4 { font-size: 13px; color: var(--heading); margin-bottom: 8px; }
+  .persp-card ul { list-style: none; padding: 0; }
+  .persp-card ul li {
+    font-size: 13px; color: #94a3b8;
+    padding: 3px 0 3px 14px; position: relative;
+  }
+  .persp-card ul li::before {
+    content: '·'; position: absolute; left: 0;
+    font-weight: 900; font-size: 16px; top: -1px;
+  }
+
+  /* VERDICT */
+  .verdict {
+    background: linear-gradient(135deg, rgba(0,200,150,0.06), rgba(59,130,246,0.06));
+    border: 1px solid rgba(0,200,150,0.25);
+    border-radius: 12px; padding: 24px;
+    margin-top: 8px;
+  }
+  .verdict .v-title {
+    font-size: 13px; font-weight: 700;
+    color: var(--accent); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  .verdict p { color: #b0bfd4; margin-bottom: 10px; }
+  .verdict p:last-child { margin-bottom: 0; }
+  .verdict .conclusion {
+    font-size: 15px; font-weight: 600;
+    color: var(--heading);
+    border-top: 1px solid var(--border);
+    padding-top: 14px; margin-top: 14px;
+  }
+
+  .spacer { height: 12px; }
+  .spacer-lg { height: 28px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ticker">📊 Analyse Forum · VU · Euronext Paris</div>
+    <h1>VusionGroup — Résultats Annuels 2025<br>+ Perspectives CT / MT / LT</h1>
+    <div class="disclaimer">Publication du 26 février 2026 à 17h40 · Analyse personnelle, pas un conseil en investissement · DYOR</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="section-title">Chiffres clés 2025</div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Chiffre d'affaires</div>
+      <div class="kpi-value">1 527 M€</div>
+      <div class="kpi-delta up">▲ +51%</div>
+      <div class="kpi-sub">ajusté · vs 1 011 M€ en 2024</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">EBITDA ajusté</div>
+      <div class="kpi-value">277 M€</div>
+      <div class="kpi-delta up">▲ +73%</div>
+      <div class="kpi-sub">marge 18,2% (+2,3 pts)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Résultat net</div>
+      <div class="kpi-value">99 M€</div>
+      <div class="kpi-delta up">▲ +85%</div>
+      <div class="kpi-sub">vs 53 M€ en 2024</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Trésorerie nette</div>
+      <div class="kpi-value">439 M€</div>
+      <div class="kpi-delta up">▲ +46 M€</div>
+      <div class="kpi-sub">> 3,5 €/action</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Free Cash-Flow</div>
+      <div class="kpi-value">56 M€</div>
+      <div class="kpi-delta warn">▼ vs 391 M€</div>
+      <div class="kpi-sub">baisse anticipée ✓ (voir analyse)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Prises de commandes</div>
+      <div class="kpi-value">1 703 M€</div>
+      <div class="kpi-delta up">▲ +5%</div>
+      <div class="kpi-sub">en hausse en Europe 🇪🇺</div>
+    </div>
+  </div>
+
+  <!-- ANALYSE DÉTAILLÉE -->
+  <div class="spacer-lg"></div>
+  <div class="section-title">Analyse détaillée</div>
+
+  <div class="block">
+    <h3><span class="icon">🌍</span> 1. Une croissance tirée à 73% par les Amériques</h3>
+    <p>La zone <strong>Amériques + Asie-Pacifique explose à 1 112 M€ (+115%)</strong>, soit 73% du CA total. Le moteur : le déploiement massif d'<strong>EdgeSense dans les supercenters Walmart</strong>, avec un T4 2025 à <span class="hl">+102%</span> sur cette zone.</p>
+    <p>En revanche, l'<strong>EMEA recule de -16% à 415 M€</strong> suite à la fin du cycle de déploiement d'un grand client européen (probablement Kaufland/Schwarz). Ce repli était <span class="hl">attendu et annoncé</span>. Le rebond est anticipé dès 2026 grâce à la dynamique commerciale : Carrefour, DM Allemagne, Asda, Morrison…</p>
+    <table class="data-table">
+      <tr><th>Zone</th><th>CA 2025</th><th>CA 2024</th><th>Variation</th></tr>
+      <tr><td>Amériques + APAC</td><td class="right">1 112 M€</td><td class="right">518 M€</td><td class="green">+115%</td></tr>
+      <tr><td>EMEA</td><td class="right">415 M€</td><td class="right">492 M€</td><td class="warn">-16%</td></tr>
+      <tr><td>Total groupe</td><td class="right">1 527 M€</td><td class="right">1 011 M€</td><td class="green">+51%</td></tr>
+    </table>
+  </div>
+
+  <div class="block">
+    <h3><span class="icon">⭐</span> 2. Le VAS — le vrai moteur de la transformation</h3>
+    <p>C'est <strong>LE point central à surveiller</strong>. Le CA VAS a <span class="hl">doublé à 211 M€</span> et représente désormais <span class="hl">14% du CA</span> contre 10% en 2024. Le virage vers un modèle SaaS/récurrent s'amorce clairement.</p>
+    <table class="data-table">
+      <tr><th>Type VAS</th><th>CA 2025</th><th>Variation</th><th>Note</th></tr>
+      <tr><td>VAS Récurrents</td><td class="right">83 M€</td><td class="green">+45%</td><td style="color:#64748b;font-size:12px">Abonnements Cloud, SaaS Captana, MarketHub</td></tr>
+      <tr><td>VAS Non-récurrents</td><td class="right">128 M€</td><td class="green">+166%</td><td style="color:#64748b;font-size:12px">Installations, caméras, rails vidéo, Retail Media</td></tr>
+      <tr><td><strong>Total VAS</strong></td><td class="right">211 M€</td><td class="green">+100%</td><td style="color:#64748b;font-size:12px">vs 14% du CA en 2024 (10%)</td></tr>
+    </table>
+    <p>Point remarquable : l'<strong>ARR des VAS récurrents a dépassé 100 M€/an au T4 2025</strong>. La base installée cloud est passée de <span class="hl-warn">152 M d'ESL → 375 M d'ESL</span> en un an (x2,5), garantissant une manne d'abonnements pour les années à venir.</p>
+  </div>
+
+  <div class="block">
+    <h3><span class="icon">📈</span> 3. Amélioration structurelle des marges</h3>
+    <p>La marge sur coûts variables progresse de <span class="hl-warn">29,3%</span> à <span class="hl">30,9%</span> grâce à trois facteurs :</p>
+    <ul class="check-list">
+      <li>Amélioration industrielle — gains d'échelle Foxconn/Jabil (Vietnam + Mexique)</li>
+      <li>Mix produit plus favorable (plus de VAS, moins de hardware pur)</li>
+      <li>Gains R&D sur les nouveaux produits EdgeSense et Captana</li>
+    </ul>
+    <p style="margin-top:10px">Les charges opérationnelles représentent <span class="hl">12,7% du CA</span> contre 13,5% en 2024 malgré des recrutements importants → <strong>l'effet de levier opérationnel s'active clairement.</strong></p>
+  </div>
+
+  <div class="block">
+    <h3><span class="icon">💰</span> 4. Cash-Flow — la baisse est une fausse alarme</h3>
+    <p>Le FCF chute à <span class="hl-warn">56 M€ vs 391 M€</span> en 2024. Mais attention : cette baisse était <span class="hl">totalement prévue et annoncée</span> depuis plusieurs trimestres. Elle s'explique par :</p>
+    <ul class="check-list">
+      <li>La consommation des acomptes géants reçus de Walmart en 2024</li>
+      <li>La quasi-fin des investissements en lignes de production (77,5 M€ en 2025 vs 117,3 M€ en 2024)</li>
+    </ul>
+    <p style="margin-top:10px">Ce qui compte vraiment : le <strong>flux de trésorerie opérationnel progresse de +84% à 212 M€</strong>, reflet fidèle de la génération de cash du business. Le groupe termine l'année à <span class="hl">439 M€ de trésorerie nette positive.</span></p>
+  </div>
+
+  <!-- ANALYSE TECHNIQUE -->
+  <div class="spacer-lg"></div>
+  <div class="section-title">Analyse technique — Graphique 1S</div>
+
+  <div class="block">
+    <h3><span class="icon">📉</span> Niveaux Fibonacci — cours actuel : 124 €</h3>
+    <p>Le cours évolue autour de <span class="hl-warn">124 €</span>, correspondant très précisément au <strong>niveau Fibonacci 23,6%</strong> du retracement (69,6 € → 277,3 €). La chute depuis ~270 € mi-2025 semble excessive au regard des fondamentaux.</p>
+
+    <div style="margin:16px 0">
+      <div class="fibo-row">
+        <div class="fibo-level">0%</div>
+        <div class="fibo-price">69,6 €</div>
+        <div class="fibo-bar"><div class="fibo-bar-fill" style="width:10%;background:#475569"></div></div>
+        <span class="fibo-tag"><span class="tag tag-warn">plancher</span></span>
+      </div>
+      <div class="fibo-row" style="background:rgba(245,158,11,0.05);border-radius:6px;padding:8px 4px">
+        <div class="fibo-level">23,6%</div>
+        <div class="fibo-price" style="color:var(--warn)">118,6 €</div>
+        <div class="fibo-bar"><div class="fibo-bar-fill" style="width:25%;background:var(--warn)"></div></div>
+        <span class="fibo-tag"><span class="tag tag-warn">⚠ support</span></span>
+      </div>
+      <div class="fibo-row">
+        <div class="fibo-level">38,2%</div>
+        <div class="fibo-price">148,9 €</div>
+        <div class="fibo-bar"><div class="fibo-bar-fill" style="width:40%;background:var(--accent2)"></div></div>
+        <span class="fibo-tag"><span class="tag tag-blue">R1</span></span>
+      </div>
+      <div class="fibo-row">
+        <div class="fibo-level">50%</div>
+        <div class="fibo-price">173,4 €</div>
+        <div class="fibo-bar"><div class="fibo-bar-fill" style="width:55%;background:var(--accent2)"></div></div>
+        <span class="fibo-tag"><span class="tag tag-blue">R2</span></span>
+      </div>
+      <div class="fibo-row">
+        <div class="fibo-level">61,8%</div>
+        <div class="fibo-price">198,0 €</div>
+        <div class="fibo-bar"><div class="fibo-bar-fill" style="width:70%;background:var(--accent)"></div></div>
+        <span class="fibo-tag"><span class="tag tag-green">R3</span></span>
+      </div>
+      <div class="fibo-row">
+        <div class="fibo-level">100%</div>
+        <div class="fibo-price">277,3 €</div>
+        <div class="fibo-bar"><div class="fibo-bar-fill" style="width:100%;background:var(--accent)"></div></div>
+        <span class="fibo-tag"><span class="tag tag-green">sommet</span></span>
+      </div>
+    </div>
+    <p>Le RSI (14) visible sur le graphique semaine est en territoire de <strong>survente potentielle</strong>. La publication de ce soir arrive au bon moment pour déclencher un rebond technique.</p>
+  </div>
+
+  <!-- PERSPECTIVES -->
+  <div class="spacer-lg"></div>
+  <div class="section-title">Perspectives CT / MT / LT</div>
+
+  <div class="block" style="margin-bottom:16px">
+    <h3 style="margin-bottom:16px"><span class="icon">🎯</span> Guidance officielle 2026</h3>
+    <table class="data-table">
+      <tr><th>Indicateur</th><th>Objectif 2026</th><th>Estimation chiffrée</th></tr>
+      <tr><td>Croissance CA ajusté</td><td class="right"><span class="hl">+15% à +20%</span></td><td class="right" style="color:#64748b">1 755 → 1 832 M€</td></tr>
+      <tr><td>Croissance VAS</td><td class="right"><span class="hl">~+40%</span></td><td class="right" style="color:#64748b">~295 M€</td></tr>
+      <tr><td>Marge EBITDA ajusté</td><td class="right"><span class="hl">+100 pbs min.</span></td><td class="right" style="color:#64748b">> 19,2%</td></tr>
+      <tr><td>FCF opérationnel</td><td class="right"><span class="hl">En hausse</span></td><td class="right" style="color:#64748b">> 212 M€</td></tr>
+      <tr><td>Dividende proposé</td><td class="right"><span class="hl">0,90 €/action</span></td><td class="right" style="color:#64748b">vs 0,60 € en 2024</td></tr>
+    </table>
+  </div>
+
+  <div class="persp-grid">
+    <div class="persp-card">
+      <div class="horizon" style="color:var(--accent2)">🕐 Court terme · 0-6 mois</div>
+      <h4>Catalyseurs</h4>
+      <ul>
+        <li>Conférence management ce soir 18h CET</li>
+        <li>Déploiement Carrefour (EdgeSense + Cloud + Captana)</li>
+        <li>CA T1 2026 le 21 avril</li>
+        <li>Plan rachat actions 30 M€</li>
+        <li>AGO + dividende 4 juin</li>
+      </ul>
+      <h4 style="margin-top:12px;color:var(--warn)">Risques</h4>
+      <ul>
+        <li>Droits de douane US (guidance "à taux constants")</li>
+        <li>Risque EUR/USD</li>
+        <li>Confirmation rebond EMEA T1</li>
+      </ul>
+    </div>
+    <div class="persp-card">
+      <div class="horizon" style="color:var(--accent)">📅 Moyen terme · 6-18 mois</div>
+      <h4>Moteurs</h4>
+      <ul>
+        <li>ARR récurrents → 120-130 M€ fin 2026</li>
+        <li>Base cloud → 500-600 M d'ESL</li>
+        <li>150 000+ AI-cameras Captana</li>
+        <li>Retail Media "Engage" montée en puissance</li>
+        <li>Carrefour = référence européenne</li>
+      </ul>
+    </div>
+    <div class="persp-card">
+      <div class="horizon" style="color:#a78bfa)">🔭 Long terme · 2 ans+ (Vusion-27)</div>
+      <div class="horizon" style="color:#a78bfa">🔭 Long terme · Plan Vusion-27</div>
+      <h4>Thèse haussière</h4>
+      <ul>
+        <li>Réévaluation multiple (hardware → SaaS)</li>
+        <li>ARR récurrents 300-400 M€ d'ici 2027</li>
+        <li>EdgeSense standard mondial</li>
+        <li>Acquisitions (439 M€ de cash)</li>
+      </ul>
+      <h4 style="margin-top:12px;color:var(--danger)">Risques LT</h4>
+      <ul>
+        <li>Concentration Walmart (>50% CA)</li>
+        <li>Entrée concurrent majeur</li>
+        <li>Dilution BSA (~1,1M restants)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- VERDICT -->
+  <div class="spacer-lg"></div>
+  <div class="section-title">Mon avis personnel</div>
+
+  <div class="verdict">
+    <div class="v-title">💬 Verdict</div>
+    <p>À <strong>124 €</strong>, le marché valorise Vusion à environ <span class="hl">~9x l'EBITDA 2025</span> et <span class="hl">~7,5x l'EBITDA 2026 estimé</span>. C'est une valorisation qui paraît anormalement basse pour une société qui :</p>
+    <ul class="check-list" style="margin:10px 0">
+      <li>Croît à +50% par an avec une visibilité forte (commandes 1,7 Md€)</li>
+      <li>Détient 439 M€ de trésorerie nette (>3,5 €/action)</li>
+      <li>Double son résultat net à 99 M€</li>
+      <li>Accélère sa transformation vers un modèle SaaS/récurrent</li>
+    </ul>
+    <p>La chute depuis 270 € semble avoir été excessive, alimentée par une incompréhension sur la baisse du FCF (qui était pourtant annoncée depuis un an). Les fondamentaux 2025 battent ou confirment toutes les attentes.</p>
+    <div class="conclusion">
+      🎯 En résumé : <strong>fondamentaux solides, valorisation attractive, catalyseurs nombreux à CT.</strong> La vraie question reste la vitesse du rebond EMEA et la conversion de la base installée en revenus récurrents. <span class="hl-warn">Targets techniques : 148 → 173 → 198 €.</span>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;padding:14px;background:var(--surface);border-radius:8px;font-size:12px;color:var(--muted);text-align:center;border:1px solid var(--border)">
+    Sources : Communiqué de presse VusionGroup du 26/02/2026 · Analyse personnelle non professionnelle · Ne constitue pas un conseil en investissement · DYOR
+  </div>
+
+</div>
+</body>
+</html>
